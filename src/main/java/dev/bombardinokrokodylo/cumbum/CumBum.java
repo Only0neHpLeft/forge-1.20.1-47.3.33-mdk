@@ -1,6 +1,10 @@
 package dev.bombardinokrokodylo.cumbum;
 
 import com.mojang.logging.LogUtils;
+import dev.bombardinokrokodylo.block.ModBlockEntities;
+import dev.bombardinokrokodylo.block.ModBlocks;
+import dev.bombardinokrokodylo.item.ModItems;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -23,20 +27,16 @@ public class CumBum
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
 
-    public CumBum(FMLJavaModLoadingContext context)
-    {
+    public CumBum(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
-
-        // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
-
-        // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
 
-        // Register the item to a creative tab
-        modEventBus.addListener(this::addCreative);
+        ModItems.register(modEventBus);
+        ModBlocks.register(modEventBus);
+        ModBlockEntities.register(modEventBus);
 
-        // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
+        modEventBus.addListener(this::addCreative);
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
@@ -48,7 +48,9 @@ public class CumBum
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
-
+        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
+            event.accept(ModBlocks.EXPLOSIVE_TNT_CHEST);
+        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
