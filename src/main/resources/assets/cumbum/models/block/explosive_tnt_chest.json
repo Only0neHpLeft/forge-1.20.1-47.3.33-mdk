@@ -1,6 +1,12 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube",
   "textures": {
-    "all": "cumbum:block/explosive_tnt_chest"
+    "particle": "cumbum:block/explosive_tnt_chest",
+    "north": "cumbum:block/explosive_tnt_chest",
+    "south": "cumbum:block/explosive_tnt_chest",
+    "east": "cumbum:block/explosive_tnt_chest",
+    "west": "cumbum:block/explosive_tnt_chest",
+    "up": "cumbum:block/explosive_tnt_chest",
+    "down": "cumbum:block/explosive_tnt_chest"
   }
 }

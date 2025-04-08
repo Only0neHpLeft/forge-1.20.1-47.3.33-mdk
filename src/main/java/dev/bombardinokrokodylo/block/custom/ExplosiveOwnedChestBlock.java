@@ -1,25 +1,37 @@
 package dev.bombardinokrokodylo.block.custom;
 
-import dev.bombardinokrokodylo.block.ModBlockEntities;
 import dev.bombardinokrokodylo.block.entity.ExplosiveChestBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
-public class ExplosiveOwnedChestBlock extends ChestBlock {
+public class ExplosiveOwnedChestBlock extends Block implements EntityBlock {
 
     public ExplosiveOwnedChestBlock(Properties properties) {
-        super(properties, () -> ModBlockEntities.EXPLOSIVE_CHEST.get());
+        super(properties);
+    }
+
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new ExplosiveChestBlockEntity(pos, state);
     }
 
     @Override
@@ -47,8 +59,16 @@ public class ExplosiveOwnedChestBlock extends ChestBlock {
                 level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
                 return InteractionResult.SUCCESS;
             }
+
+            MenuProvider menuProvider = new SimpleMenuProvider(
+                    (id, inventory, p) -> ChestMenu.threeRows(id, inventory, chest),
+                    Component.translatable("block.cumbum.explosive_tnt_chest")
+            );
+            
+            NetworkHooks.openScreen((ServerPlayer) player, menuProvider, pos);
+            player.awardStat(Stats.OPEN_CHEST);
         }
 
-        return super.use(state, level, pos, player, hand, hit);
+        return InteractionResult.CONSUME;
     }
 }
