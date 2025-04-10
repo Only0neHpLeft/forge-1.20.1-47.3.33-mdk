@@ -18,6 +18,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
@@ -32,6 +34,16 @@ public class ExplosiveOwnedChestBlock extends Block implements EntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new ExplosiveChestBlockEntity(pos, state);
+    }
+    
+    @Nullable
+    @Override
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return (lvl, pos, blockState, blockEntity) -> {
+            if (blockEntity instanceof ExplosiveChestBlockEntity chest) {
+                ExplosiveChestBlockEntity.tick(lvl, pos, blockState, chest);
+            }
+        };
     }
 
     @Override
@@ -54,9 +66,7 @@ public class ExplosiveOwnedChestBlock extends Block implements EntityBlock {
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof ExplosiveChestBlockEntity chest) {
             if (!chest.isOwner(player)) {
-                level.explode(null, pos.getX(), pos.getY(), pos.getZ(),
-                        50.0f, Level.ExplosionInteraction.TNT);
-                level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+                chest.startExplosion();
                 return InteractionResult.SUCCESS;
             }
 
